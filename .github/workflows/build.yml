@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main ]
     tags: [ 'v*' ]
   pull_request:
   workflow_dispatch:
@@ -81,7 +81,7 @@ jobs:
 
       - name: Is this a new version?
         id: rel
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -91,7 +91,7 @@ jobs:
           $global:LASTEXITCODE = 0
 
       - name: Publish release
-        if: steps.rel.outputs.new == 'true' && github.ref == 'refs/heads/main'
+        if: steps.rel.outputs.new == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.ver.outputs.version }}

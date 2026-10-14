@@ -107,6 +107,8 @@ namespace Sector.Agent
             app.Use(async (ctx, next) =>
             {
                 var ip = ctx.Connection.RemoteIpAddress;
+                // Kestrel listens dual-stack, so 127.0.0.1 can arrive as ::ffff:127.0.0.1.
+                if (ip != null && ip.IsIPv4MappedToIPv6) ip = ip.MapToIPv4();
                 bool local = ip == null || IPAddress.IsLoopback(ip);
                 var c = ConfigStore.Current;
                 if (!local && !c.AllowRemote)

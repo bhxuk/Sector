@@ -76,7 +76,7 @@ namespace Sector.Core
             if (res.StatusCode == HttpStatusCode.Unauthorized)
             {
                 if (_entry.IsLocal) ForgetLocalConfig();
-                throw new AgentException(_entry.IsLocal ? "The agent's key changed. Trying again." : "The pairing key isn't right. Check it on the other PC (Sector > Machines).");
+                throw new AgentException(_entry.IsLocal ? "Waiting for the Sector agent to finish starting." : "The pairing key isn't right. Check it on the other PC (Sector > Machines).");
             }
             if (res.StatusCode == HttpStatusCode.Forbidden)
                 throw new AgentException(await res.Content.ReadAsStringAsync());
