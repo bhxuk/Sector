@@ -69,6 +69,7 @@ namespace Sector
             Fleet.Updated += m =>
             {
                 Alerts.Evaluate(m);
+                AppUpdater.Observe(m);
                 Tray.Refresh();
             };
             Fleet.Start();
@@ -115,15 +116,20 @@ namespace Sector
 
         private string _notifiedVersion;
 
+        /// <summary>
+        /// Only for agents from 1.0.0, which can't update themselves. Newer agents check GitHub on their own
+        /// and the offer arrives through <see cref="AppUpdater"/>.
+        /// </summary>
         public async Task CheckForUpdate()
         {
+            var local = AppUpdater.LocalMachine;
+            if (local == null || !local.Online || AppUpdater.StatusOf(local) != null) return;
             if (!await Updates.Check()) return;
             if (Settings.Current.AutoUpdate)
             {
                 await InstallUpdate();
                 return;
             }
-            Tray.ShowUpdateItem(Updates.LatestVersion);
             if (_notifiedVersion == Updates.LatestVersion) return;
             _notifiedVersion = Updates.LatestVersion;
             Tray.Notify("Sector " + Updates.LatestVersion + " is available", "Click here to install it. Sector reopens by itself.", () => _ = InstallUpdate());

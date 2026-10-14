@@ -49,7 +49,7 @@ namespace Sector.Core
             if (_update == null)
             {
                 _update = new System.Windows.Forms.ToolStripMenuItem();
-                _update.Click += (s, e) => _ = App.Instance.InstallUpdate();
+                _update.Click += (s, e) => _ = AppUpdater.Install(AppUpdater.LocalMachine);
                 menu.Items.Insert(0, _update);
                 menu.Items.Insert(1, new System.Windows.Forms.ToolStripSeparator());
             }

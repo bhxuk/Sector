@@ -126,7 +126,9 @@ namespace Sector.Agent
                         await ctx.Response.WriteAsync("Wrong or missing pairing key.");
                         return;
                     }
-                    if (ctx.Request.Method == "POST" && !local)
+                    // Other PCs may start an update (it only ever installs the official release), nothing else.
+                    bool updateCall = path.StartsWith("/api/update", StringComparison.OrdinalIgnoreCase);
+                    if (ctx.Request.Method == "POST" && !local && !updateCall)
                     {
                         ctx.Response.StatusCode = 403;
                         await ctx.Response.WriteAsync("Settings can only be changed on this PC.");
@@ -154,7 +156,40 @@ namespace Sector.Agent
                 HistoryDays = ConfigStore.Current.HistoryDays
             }, Json.Options));
 
-            app.MapGet("/api/snapshot", (SensorReader r) => Results.Json(r.Latest, Json.Options));
+            app.MapGet("/api/snapshot", (SensorReader r) =>
+            {
+                var snap = r.Latest;
+                snap.AgentVersion = Version;
+                snap.Update = Updater.Snapshot();
+                return Results.Json(snap, Json.Options);
+            });
+
+            app.MapGet("/api/update", () => Results.Json(Updater.Snapshot(), Json.Options));
+
+            app.MapPost("/api/update/check", async () =>
+            {
+                await Updater.Check();
+                return Results.Json(Updater.Snapshot(), Json.Options);
+            });
+
+            // Automatic updates can be switched on from another PC too, so the NAS can be set up from your desk.
+            app.MapPost("/api/update/auto", (AgentSettingsChange change) =>
+            {
+                if (change?.AutoUpdate is bool on)
+                {
+                    ConfigStore.Current.AutoUpdate = on;
+                    ConfigStore.Save();
+                    Log.Write("Automatic updates " + (on ? "on." : "off."));
+                }
+                return Results.Json(Updater.Snapshot(), Json.Options);
+            });
+
+            app.MapPost("/api/update/install", () =>
+            {
+                Log.Write("Update asked for.");
+                Updater.Start();
+                return Results.Json(Updater.Snapshot(), Json.Options);
+            });
 
             app.MapGet("/api/history/sensors", (HistoryStore h) => Results.Json(h.Sensors(), Json.Options));
 
@@ -175,8 +210,9 @@ namespace Sector.Agent
                 }
                 if (change?.HistoryDays is int days) c.HistoryDays = Math.Clamp(days, 7, 3650);
                 if (change?.NewKey == true) { c.Key = ConfigStore.NewKey(); Log.Write("New pairing key made."); }
+                if (change?.AutoUpdate is bool auto) c.AutoUpdate = auto;
                 ConfigStore.Save();
-                return Results.Json(new { allowRemote = c.AllowRemote, historyDays = c.HistoryDays, key = c.Key }, Json.Options);
+                return Results.Json(new { allowRemote = c.AllowRemote, historyDays = c.HistoryDays, key = c.Key, autoUpdate = c.AutoUpdate }, Json.Options);
             });
 
             // After PawnIO is installed the agent has to start again to load it. The service restarts itself.
@@ -207,6 +243,7 @@ namespace Sector.Agent
         {
             // Opening the hardware monitor can take a few seconds; don't hold up the web server.
             await Task.Yield();
+            _ = Updater.RunSchedule(stop);
             try { _reader.Open(); }
             catch (Exception ex) { Log.Write("Couldn't open the hardware monitor: " + ex); }
 

@@ -154,10 +154,35 @@ namespace Sector.Pages
             Bind(_ =>
             {
                 state.Text = m.Online
-                    ? $"Online  ·  {m.Entry.Address}:{m.Entry.Port}  ·  {m.Snapshot?.Drives.Count ?? 0} drives  ·  agent {m.Info?.AgentVersion}"
+                    ? $"Online  ·  {m.Entry.Address}:{m.Entry.Port}  ·  {m.Snapshot?.Drives.Count ?? 0} drives  ·  Sector {m.Info?.AgentVersion}"
                     : $"{m.Entry.Address}:{m.Entry.Port}  ·  {m.Error}";
                 state.Foreground = m.Online ? Theme.Muted : Theme.Red;
             });
+            // Updates for that PC, run by its own agent: one click from here, or automatic.
+            var upd = FlatButton.Primary("Update", null);
+            upd.MinHeight = 34;
+            upd.Click += async (o, e) =>
+            {
+                upd.IsEnabled = false;
+                string err = await AppUpdater.Install(m);
+                if (!string.IsNullOrEmpty(err)) { MessageBox.Show(err, "Sector"); upd.IsEnabled = true; }
+            };
+            var autoUpd = new ToggleSwitch(false, "Automatic updates for this PC");
+            autoUpd.Toggled += async on =>
+            {
+                try { await m.Client.SetAutoUpdate(on); }
+                catch { autoUpd.IsOn = !on; }
+            };
+            var autoRow = UI.H(8, UI.Text("Auto-update", 13, Theme.Muted), autoUpd);
+            Bind(_ =>
+            {
+                var u = AppUpdater.StatusOf(m);
+                upd.Visibility = u?.Available == true && !AppUpdater.Busy(u) ? Visibility.Visible : Visibility.Collapsed;
+                upd.Content = u?.Available == true ? "Update to " + u.Latest : "Update";
+                autoRow.Visibility = u != null ? Visibility.Visible : Visibility.Collapsed;
+                if (u != null && autoUpd.IsOn != u.Auto) autoUpd.IsOn = u.Auto;
+            });
+
             var alerts = new ToggleSwitch(m.Entry.Alerts, "Alerts for this PC");
             alerts.Toggled += on => { m.Entry.Alerts = on; Settings.Save(); };
             var remove = FlatButton.Secondary("Remove", () =>
@@ -172,7 +197,7 @@ namespace Sector.Pages
             g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             var left = UI.V(6, name, state);
             g.Children.Add(left);
-            var right = UI.H(14, UI.H(8, UI.Text("Alerts", 13, Theme.Muted), alerts), remove);
+            var right = UI.H(14, upd, autoRow, UI.H(8, UI.Text("Alerts", 13, Theme.Muted), alerts), remove);
             right.VerticalAlignment = VerticalAlignment.Center;
             Grid.SetColumn(right, 1);
             g.Children.Add(right);

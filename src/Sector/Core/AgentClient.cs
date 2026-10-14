@@ -93,6 +93,10 @@ namespace Sector.Core
 
         public Task<JsonElement> ChangeSettings(AgentSettingsChange change) => Send<JsonElement>(HttpMethod.Post, "api/settings", change);
 
+        public Task<UpdateStatus> CheckUpdate() => Send<UpdateStatus>(HttpMethod.Post, "api/update/check");
+        public Task<UpdateStatus> StartUpdate() => Send<UpdateStatus>(HttpMethod.Post, "api/update/install");
+        public Task<UpdateStatus> SetAutoUpdate(bool on) => Send<UpdateStatus>(HttpMethod.Post, "api/update/auto", new AgentSettingsChange { AutoUpdate = on });
+
         public async Task Restart()
         {
             using var req = Request(HttpMethod.Post, "api/restart");

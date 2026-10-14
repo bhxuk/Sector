@@ -7,6 +7,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Sector.Core;
 using Sector.Pages;
+using Sector.Shared;
 
 namespace Sector
 {
@@ -20,6 +21,8 @@ namespace Sector
         private readonly TextBlock _title;
         private readonly TextBlock _subtitle;
         private readonly Border _banner = new Border();
+        private readonly Border _updateBar = new Border();
+        private string _updateKey;
         private readonly Dictionary<string, FlatButton> _navButtons = new Dictionary<string, FlatButton>();
         private readonly Dictionary<string, (FlatButton button, Border dot, TextBlock temp)> _machineButtons = new Dictionary<string, (FlatButton, Border, TextBlock)>();
         private PageBase _current;
@@ -74,6 +77,7 @@ namespace Sector
             header.Margin = new Thickness(0, 0, 0, 20);
             var pageStack = new StackPanel { MaxWidth = 1240 };
             pageStack.Children.Add(header);
+            pageStack.Children.Add(_updateBar);
             pageStack.Children.Add(_banner);
             pageStack.Children.Add(_page);
 
@@ -296,6 +300,93 @@ namespace Sector
                 _banner.Margin = new Thickness(0);
             }
             _current.Update(sel);
+            RefreshUpdateBar(sel);
+        }
+
+        /// <summary>
+        /// The update strip: "Sector 1.2.0 is ready [Update now]" for this PC, or "[Update NAS]" while you're
+        /// looking at the NAS. Shows download progress and the install while it happens.
+        /// </summary>
+        private void RefreshUpdateBar(MachineState sel)
+        {
+            var local = AppUpdater.LocalMachine;
+            MachineState target = null;
+            UpdateStatus u = null;
+            var su = AppUpdater.StatusOf(sel);
+            if (sel != null && !sel.Entry.IsLocal && su != null && (su.Available || AppUpdater.Busy(su))) { target = sel; u = su; }
+            else
+            {
+                var lu = AppUpdater.StatusOf(local);
+                if (lu != null && (lu.Available || AppUpdater.Busy(lu) || lu.State == "Failed")) { target = local; u = lu; }
+            }
+
+            string key = target == null ? "" : target.Entry.Id + "|" + u.State + "|" + u.Latest + "|" + (u.State == "Downloading" ? u.Progress / 5 : 0) + "|" + u.Message;
+            if (key == _updateKey) return;
+            _updateKey = key;
+            if (target == null)
+            {
+                _updateBar.Child = null;
+                _updateBar.Margin = new Thickness(0);
+                return;
+            }
+
+            string where = target.Entry.IsLocal ? "" : " for " + target.Name;
+            string text;
+            UIElement action = null;
+            switch (u.State)
+            {
+                case "Downloading":
+                    text = $"Downloading Sector {u.Latest}{where}...  {u.Progress}%";
+                    break;
+                case "Installing":
+                    text = target.Entry.IsLocal ? $"Installing Sector {u.Latest}. Sector will close and reopen by itself." : $"Installing Sector {u.Latest} on {target.Name}. It'll be back in about a minute.";
+                    break;
+                case "Failed":
+                    text = u.Message;
+                    action = FlatButton.Secondary("Try again", () => _ = AppUpdater.Install(target));
+                    break;
+                default:
+                    text = target.Entry.IsLocal
+                        ? $"Sector {u.Latest} is ready. You're on {u.Current}."
+                        : $"{target.Name} is on Sector {u.Current}. {u.Latest} is ready.";
+                    var b = FlatButton.Primary(target.Entry.IsLocal ? "Update now" : "Update " + target.Name, null);
+                    b.MinHeight = 36;
+                    b.Click += async (o, e) =>
+                    {
+                        b.IsEnabled = false;
+                        string err = await AppUpdater.Install(target);
+                        if (!string.IsNullOrEmpty(err)) { MessageBox.Show(err, "Sector"); b.IsEnabled = true; }
+                    };
+                    var notes = FlatButton.Secondary("What's new", () => Shell.Open("https://github.com/" + Updates.Repo + "/blob/main/CHANGELOG.md"));
+                    notes.MinHeight = 36;
+                    action = UI.H(8, notes, b);
+                    break;
+            }
+            if (action is FlatButton fb) fb.MinHeight = 36;
+
+            var g = new Grid();
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var icon = UI.GridIcon(Icons.Refresh, 18, Theme.Amber);
+            icon.Margin = new Thickness(0, 0, 14, 0);
+            icon.VerticalAlignment = VerticalAlignment.Center;
+            g.Children.Add(icon);
+            var t = UI.Text(text, 14, Theme.Text, FontWeights.SemiBold);
+            t.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetColumn(t, 1);
+            g.Children.Add(t);
+            if (action is FrameworkElement fe)
+            {
+                fe.Margin = new Thickness(16, 0, 0, 0);
+                fe.VerticalAlignment = VerticalAlignment.Center;
+                Grid.SetColumn(fe, 2);
+                g.Children.Add(fe);
+            }
+            var card = UI.Card(g, 14, Theme.AmberTint);
+            card.BorderBrush = Theme.Amber;
+            _updateBar.Child = card;
+            _updateBar.Margin = new Thickness(0, 0, 0, 16);
         }
 
         private string _bannerKey;

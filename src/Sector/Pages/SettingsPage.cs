@@ -96,22 +96,46 @@ namespace Sector.Pages
             page.Children.Add(Section("History on this PC", UI.Card(history, 20)));
 
             // ---- Updates and about ----
-            var updateNote = UI.Text("", 12, Theme.Muted);
+            var lu = AppUpdater.StatusOf(local);
+            var updateNote = UI.Text(lu == null ? "" : lu.Available ? $"Sector {lu.Latest} is ready." : lu.CheckedUtc > DateTime.MinValue ? "Up to date. Last checked " + Format.Ago(lu.CheckedUtc) + "." : "", 12, Theme.Muted);
+            updateNote.VerticalAlignment = VerticalAlignment.Center;
+            FlatButton updateNow = null;
+            updateNow = FlatButton.Primary("Update now", async () =>
+            {
+                updateNow.IsEnabled = false;
+                string err = await AppUpdater.Install(local);
+                updateNote.Text = string.IsNullOrEmpty(err) ? "Updating. Sector will close and reopen by itself." : err;
+                if (!string.IsNullOrEmpty(err)) updateNow.IsEnabled = true;
+            });
+            updateNow.MinHeight = 36;
+            updateNow.Visibility = lu?.Available == true ? Visibility.Visible : Visibility.Collapsed;
             var check = FlatButton.Secondary("Check now", async () =>
             {
                 updateNote.Text = "Checking...";
-                if (await Updates.Check())
+                if (local != null && AppUpdater.StatusOf(local) != null)
+                {
+                    var r = await AppUpdater.CheckNow(local);
+                    updateNote.Text = r == null ? "Couldn't reach the Sector agent." : r.Message;
+                    updateNow.Visibility = r?.Available == true ? Visibility.Visible : Visibility.Collapsed;
+                }
+                else if (await Updates.Check())
                 {
                     updateNote.Text = "Sector " + Updates.LatestVersion + " is available.";
                     await App.Instance.InstallUpdate(t => updateNote.Text = t);
                 }
                 else updateNote.Text = "You have the latest version.";
             });
-            updateNote.VerticalAlignment = VerticalAlignment.Center;
+            check.MinHeight = 36;
+            var auto = new ToggleSwitch(lu?.Auto == true, "Install updates automatically");
+            auto.IsEnabled = lu != null;
+            auto.Toggled += async on =>
+            {
+                try { await local.Client.SetAutoUpdate(on); }
+                catch { auto.IsOn = !on; }
+            };
             var about = UI.V(0,
-                UI.SettingRow("Check for updates", null, Switch(S.CheckForUpdates, v => S.CheckForUpdates = v)),
-                UI.SettingRow("Install updates automatically", null, Switch(S.AutoUpdate, v => S.AutoUpdate = v)),
-                UI.H(12, check, updateNote),
+                UI.SettingRow("Install updates automatically", "On this PC. Sector checks every few hours, installs new versions quietly and reopens itself. No permission prompts. Your other PCs have their own switch under Machines.", auto),
+                UI.H(12, check, updateNow, updateNote),
                 UI.Divider(),
                 UI.SettingRow("Sector " + Updates.CurrentText, "Agent " + (local?.Info?.AgentVersion ?? "not running") +
                     (local?.Info != null ? (local.Info.PawnIoInstalled ? "  ·  PawnIO " + local.Info.PawnIoVersion : "  ·  PawnIO not installed") : ""),

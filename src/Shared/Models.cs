@@ -29,6 +29,24 @@ namespace Sector.Shared
         public List<DriveInfo> Drives { get; set; } = new List<DriveInfo>();
         public SystemSummary Summary { get; set; } = new SystemSummary();
         public bool PawnIoInstalled { get; set; }
+        public string AgentVersion { get; set; } = "";
+        public UpdateStatus Update { get; set; }
+    }
+
+    /// <summary>
+    /// The agent installs updates itself (it runs as a service, so Windows doesn't ask for permission).
+    /// The app watches this to show progress and to close and reopen itself around the install.
+    /// </summary>
+    public class UpdateStatus
+    {
+        public string State { get; set; } = "Idle";      // Idle, Checking, Downloading, Installing, Failed
+        public string Current { get; set; } = "";
+        public string Latest { get; set; } = "";
+        public bool Available { get; set; }
+        public int Progress { get; set; }                 // 0-100 while downloading
+        public string Message { get; set; } = "";
+        public bool Auto { get; set; }
+        public DateTime CheckedUtc { get; set; }
     }
 
     /// <summary>The headline numbers, worked out on the agent so every client agrees.</summary>
@@ -161,6 +179,7 @@ namespace Sector.Shared
         public bool? AllowRemote { get; set; }
         public int? HistoryDays { get; set; }
         public bool? NewKey { get; set; }
+        public bool? AutoUpdate { get; set; }
     }
 
     public static class Json
@@ -183,6 +202,9 @@ namespace Sector.Shared
         /// <summary>C:\ProgramData\Sector: shared by the agent (writes) and the app on the same PC (reads the key).</summary>
         public static string DataFolder => System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Sector");
         public static string AgentConfigPath => System.IO.Path.Combine(DataFolder, "agent.json");
+        /// <summary>Written by Setup when an update finishes, so the app knows it can reopen.</summary>
+        public static string UpdatedMarker => System.IO.Path.Combine(DataFolder, "updated.txt");
+        public const string Repo = "bhxuk/sector";
     }
 
     /// <summary>The agent's settings file. The app on the same PC reads the key and port from it.</summary>
@@ -193,6 +215,7 @@ namespace Sector.Shared
         public bool AllowRemote { get; set; } = false;
         public int HistoryDays { get; set; } = 365;
         public int PollMilliseconds { get; set; } = 2000;
+        public bool AutoUpdate { get; set; } = false;
 
         public static AgentConfig Load()
         {

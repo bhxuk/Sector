@@ -88,7 +88,7 @@ Filename: "{sys}\sc.exe"; Parameters: "description {#ServiceName} ""Reads this P
 Filename: "{sys}\sc.exe"; Parameters: "failure {#ServiceName} reset= 86400 actions= restart/3000/restart/5000/restart/30000"; Flags: runhidden waituntilterminated
 Filename: "{sys}\sc.exe"; Parameters: "start {#ServiceName}"; StatusMsg: "Starting the Sector agent..."; Flags: runhidden waituntilterminated
 Filename: "{app}\{#MyAppExe}"; Description: "Open Sector now"; Flags: nowait postinstall skipifsilent
-Filename: "{app}\{#MyAppExe}"; Parameters: "--background"; Flags: nowait runasoriginaluser; Check: WizardSilent
+Filename: "{app}\{#MyAppExe}"; Parameters: "--background"; Flags: nowait runasoriginaluser; Check: WizardSilent and not NoApp
 
 [UninstallRun]
 Filename: "{sys}\taskkill.exe"; Parameters: "/f /im {#MyAppExe}"; Flags: runhidden; RunOnceId: "StopSector"
@@ -102,6 +102,22 @@ function PawnIOInstalled: Boolean;
 begin
   Result := RegKeyExists(HKLM64, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PawnIO') or
             RegKeyExists(HKLM32, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PawnIO');
+end;
+
+{ /NOAPP: the Sector agent is installing an update (as the system account). The app reopens itself
+  when it sees the "updated" marker, so Setup mustn't start it. }
+function NoApp: Boolean;
+begin
+  Result := Pos('/NOAPP', UpperCase(GetCmdTail)) > 0;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssDone then
+  begin
+    ForceDirectories(ExpandConstant('{commonappdata}\Sector'));
+    SaveStringToFile(ExpandConstant('{commonappdata}\Sector\updated.txt'), '{#MyAppVersion}', False);
+  end;
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
