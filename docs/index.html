@@ -4,9 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sector for Windows</title>
-<meta name="description" content="Every temperature, fan and drive in your PCs and your NAS. Live sensors, full SMART drive health, a year of history and alerts when anything runs hot. For Windows 10 and 11.">
+<meta name="description" content="Every temperature, fan and drive in your PC and your home-made NAS. Live sensors, full SMART drive health, a year of history, alerts when anything runs hot, and one-click updates. Free for Windows 10 and 11.">
 <meta property="og:title" content="Sector for Windows">
-<meta property="og:description" content="Every temperature, fan and drive in your PCs, and your NAS, in one place.">
+<meta property="og:description" content="Know how hot every drive is. Temperatures, fans and drive health for your PC and your NAS.">
+<meta property="og:image" content="https://bhxuk.github.io/Sector/images/og.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#07080d">
 <link rel="icon" href="images/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,239 +18,499 @@
 <style>
 :root{
   --bg:#07080d;--panel:#10121a;--panel2:#151823;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
-  --text:#f4f2ee;--muted:rgba(244,242,238,.62);--amber:#FFB547;--teal:#5ED3C3;--green:#8FD16A;--coral:#E2585F;
+  --text:#f4f2ee;--muted:rgba(244,242,238,.62);--amber:#FFB547;--teal:#5ED3C3;--green:#8FD16A;--coral:#E2585F;--blue:#5B8CFF;
   --display:'Sora',system-ui,sans-serif;--body:'Figtree',"Segoe UI",system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit}
-.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+img{display:block;max-width:100%;height:auto}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+.skip{position:absolute;left:-999px}.skip:focus{left:12px;top:12px;z-index:20;background:var(--amber);color:#1a1206;padding:8px 14px;border-radius:10px}
 
+/* ---------- island navigation ---------- */
 .island{position:sticky;top:0;z-index:10;display:flex;justify-content:center;pointer-events:none}
-.island nav{pointer-events:auto;display:flex;align-items:center;gap:6px;background:#000;border:1px solid rgba(255,255,255,.06);border-top:0;border-radius:0 0 24px 24px;padding:8px 8px 8px 16px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.island nav{pointer-events:auto;display:flex;align-items:center;gap:4px;background:#000;border:1px solid rgba(255,255,255,.06);border-top:0;border-radius:0 0 24px 24px;padding:8px 8px 8px 16px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
 .island .brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:15px;text-decoration:none;margin-right:8px}
 .island .brand img{width:22px;height:22px;border-radius:6px}
 .island a.link{text-decoration:none;color:var(--muted);font-size:14px;font-weight:500;padding:8px 12px;border-radius:999px}
 .island a.link:hover{color:var(--text);background:rgba(255,255,255,.06)}
-.island a.get{text-decoration:none;background:var(--amber);color:#1a1206;font-weight:700;font-size:14px;padding:8px 16px;border-radius:999px}
-@media (max-width:560px){.island a.link{display:none}}
+.island a.get{text-decoration:none;background:var(--amber);color:#1a1206;font-weight:700;font-size:14px;padding:8px 16px;border-radius:999px;margin-left:4px}
+.island a.get:hover{filter:brightness(1.07)}
+@media (max-width:640px){.island a.link{display:none}}
 
-header.hero{position:relative;text-align:center;padding:88px 0 40px;isolation:isolate}
-header.hero::before{content:"";position:absolute;inset:-80px 0 auto;height:620px;z-index:-1;
-  background:radial-gradient(600px 300px at 50% 10%,rgba(255,181,71,.16),transparent 70%),radial-gradient(500px 260px at 80% 40%,rgba(94,211,195,.08),transparent 70%)}
-.hero img.logo{width:84px;height:84px;margin:0 auto 22px;border-radius:20px;box-shadow:0 20px 60px rgba(255,181,71,.18)}
-.hero h1{font-family:var(--display);font-size:clamp(38px,6vw,64px);line-height:1.05;letter-spacing:-.02em;font-weight:700}
-.hero p.lead{max-width:640px;margin:20px auto 0;color:var(--muted);font-size:clamp(17px,2vw,19px)}
+/* ---------- hero ---------- */
+header.hero{position:relative;text-align:center;padding:84px 0 0;isolation:isolate}
+header.hero::before{content:"";position:absolute;left:0;right:0;top:-80px;height:900px;z-index:-1;
+  background:radial-gradient(700px 360px at 50% 8%,rgba(255,181,71,.17),transparent 70%),
+             radial-gradient(520px 300px at 85% 35%,rgba(94,211,195,.08),transparent 70%),
+             radial-gradient(520px 300px at 12% 45%,rgba(226,88,95,.07),transparent 70%)}
+.hero .logo{width:76px;height:76px;margin:0 auto 22px;border-radius:18px;box-shadow:0 18px 60px rgba(255,181,71,.22)}
+.kicker{color:var(--amber);font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.hero h1{font-family:var(--display);font-size:clamp(40px,6.4vw,72px);line-height:1.03;letter-spacing:-.03em;font-weight:700;margin-top:14px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--green),var(--amber) 55%,var(--coral));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{max-width:660px;margin:22px auto 0;color:var(--muted);font-size:clamp(17px,2vw,19.5px)}
 .cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:32px}
-.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;padding:14px 22px;border-radius:999px;font-size:16px}
-.btn.primary{background:var(--amber);color:#1a1206}
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;padding:14px 24px;border-radius:999px;font-size:16px;min-height:50px}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.btn.primary{background:var(--amber);color:#1a1206;box-shadow:0 10px 30px rgba(255,181,71,.25)}
 .btn.ghost{border:1px solid var(--line2);color:var(--text)}
 .btn:hover{filter:brightness(1.07)}
+.btn:focus-visible,.tab:focus-visible,summary:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
 .small{color:var(--muted);font-size:13.5px;margin-top:14px}
+.hero .shot{margin:56px auto 0;max-width:1060px;position:relative}
+.frame{border-radius:20px;padding:8px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.03));box-shadow:0 50px 120px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04)}
+.frame img{border-radius:14px;width:100%}
+.hero .shot .float{position:absolute;right:-28px;bottom:70px;width:min(340px,40%);border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.65);border:1px solid var(--line2)}
+@media (max-width:900px){.hero .shot .float{display:none}}
 
-/* the mock window */
-.mock{margin:56px auto 0;max-width:980px;background:var(--panel);border:1px solid var(--line2);border-radius:22px;overflow:hidden;text-align:left;box-shadow:0 40px 120px rgba(0,0,0,.6)}
-.mock .bar{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
-.mock .bar i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.12)}
-.mock .body{display:grid;grid-template-columns:200px 1fr}
-.mock aside{background:#0d0f15;border-right:1px solid var(--line);padding:18px 12px;font-size:13.5px}
-.mock aside .lbl{color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:.08em;margin:4px 10px 8px}
-.mock aside .m{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border-radius:10px;margin-bottom:2px}
-.mock aside .m.on{background:rgba(255,255,255,.06)}
-.mock aside .m b{font-weight:600}
-.mock aside .m span{font-weight:700;font-size:12px}
-.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:7px}
-.mock aside .nav{padding:9px 10px;border-radius:10px;color:var(--muted)}
-.mock aside .nav.on{background:rgba(255,181,71,.16);color:var(--text)}
-.mock main{padding:22px}
-.mock h3{font-family:var(--display);font-size:22px;font-weight:600}
-.mock .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.card{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px}
-.card .top{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px}
-.pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px}
-.pill.g{color:var(--green);background:rgba(143,209,106,.15)}
-.pill.a{color:var(--amber);background:rgba(255,181,71,.15)}
-.card .model{color:var(--muted);font-size:11.5px;margin:2px 0 8px}
-.card .t{display:flex;align-items:flex-end;gap:10px}
-.card .t b{font-family:var(--display);font-size:32px;line-height:1;font-weight:600}
-.card svg{flex:1;height:34px}
-.meter{height:5px;border-radius:3px;background:rgba(255,255,255,.07);margin:12px 0 6px;overflow:hidden}
-.meter i{display:block;height:100%;background:var(--teal);border-radius:3px}
-.card .foot{display:flex;justify-content:space-between;color:var(--muted);font-size:11.5px}
-@media (max-width:820px){.mock .body{grid-template-columns:1fr}.mock aside{display:none}.cards{grid-template-columns:1fr 1fr}}
-@media (max-width:520px){.cards{grid-template-columns:1fr}}
+/* ---------- numbers strip ---------- */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-top:80px}
+.strip div{background:var(--bg);padding:24px 20px;text-align:center}
+.strip b{display:block;font-family:var(--display);font-size:30px;font-weight:600;letter-spacing:-.02em}
+.strip span{color:var(--muted);font-size:14px}
+@media (max-width:700px){.strip{grid-template-columns:repeat(2,1fr)}}
 
-section{padding:80px 0 0}
-h2{font-family:var(--display);font-size:clamp(28px,4vw,40px);letter-spacing:-.01em;line-height:1.15;font-weight:600}
-.intro{color:var(--muted);max-width:640px;margin-top:12px;font-size:17.5px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px}
-.f{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px}
-.f h4{font-family:var(--display);font-size:18px;font-weight:600;margin:12px 0 6px}
-.f p{color:var(--muted);font-size:15px}
-.f .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(255,181,71,.12)}
-.f .ic svg{width:22px;height:22px;stroke:var(--amber);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-@media (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
-@media (max-width:600px){.grid{grid-template-columns:1fr}}
+/* ---------- sections ---------- */
+section{padding:110px 0 0}
+.center{text-align:center}
+h2{font-family:var(--display);font-size:clamp(30px,4.2vw,46px);letter-spacing:-.025em;line-height:1.1;font-weight:600;margin-top:10px}
+.intro{color:var(--muted);max-width:660px;margin:14px auto 0;font-size:18px}
+.left .intro{margin-left:0}
 
-.nas{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-top:36px}
-.steps{list-style:none;counter-reset:s}
-.steps li{counter-increment:s;position:relative;padding:0 0 22px 52px;color:var(--muted)}
-.steps li b{color:var(--text);display:block;font-weight:600}
-.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;background:var(--panel2);border:1px solid var(--line2);display:grid;place-items:center;font-weight:700;color:var(--amber)}
-.diagram{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px}
+.why{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.why div{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:22px;padding:26px}
+.why .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;margin-bottom:18px}
+.why .ic svg{width:22px;height:22px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic.amber{background:rgba(255,181,71,.13)}.ic.amber svg{stroke:var(--amber)}
+.ic.teal{background:rgba(94,211,195,.12)}.ic.teal svg{stroke:var(--teal)}
+.ic.coral{background:rgba(226,88,95,.13)}.ic.coral svg{stroke:var(--coral)}
+.ic.green{background:rgba(143,209,106,.12)}.ic.green svg{stroke:var(--green)}
+.ic.blue{background:rgba(91,140,255,.13)}.ic.blue svg{stroke:var(--blue)}
+.why h3{font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
+.why p{color:var(--muted);font-size:15px}
+@media (max-width:900px){.why{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.why{grid-template-columns:1fr}}
+
+/* ---------- tour ---------- */
+.tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:36px}
+.tab{appearance:none;font:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:8px;color:var(--muted);background:transparent;border:1px solid var(--line2);padding:10px 16px;border-radius:999px;font-size:14.5px;font-weight:600;min-height:44px;transition:all .15s ease}
+.tab svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tab:hover{color:var(--text);border-color:rgba(255,255,255,.28)}
+.tab[aria-selected="true"]{background:var(--text);color:#0b0c10;border-color:var(--text)}
+.panel{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:44px;align-items:center;margin-top:44px;animation:fade .35s ease}
+.panel[hidden]{display:none}
+.panel h3{font-family:var(--display);font-size:28px;letter-spacing:-.02em;font-weight:600}
+.panel p{color:var(--muted);margin-top:10px}
+.ticks{list-style:none;margin-top:18px;display:grid;gap:10px}
+.ticks li{position:relative;padding-left:28px;color:#dcdad5;font-size:15.5px}
+.ticks li::before{content:"";position:absolute;left:2px;top:.5em;width:12px;height:7px;border-left:2.4px solid var(--teal);border-bottom:2.4px solid var(--teal);transform:rotate(-45deg)}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (max-width:860px){.panel{grid-template-columns:1fr;gap:24px}}
+
+/* ---------- split rows ---------- */
+.split{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:56px;align-items:center;margin-top:48px}
+.split.flip{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.split.flip .copy{order:2}
+.split h3{font-family:var(--display);font-size:26px;letter-spacing:-.02em;font-weight:600}
+.split .copy > p{color:var(--muted);margin-top:10px}
+@media (max-width:900px){.split,.split.flip{grid-template-columns:1fr;gap:28px}.split.flip .copy{order:0}}
+
+ol.steps{list-style:none;counter-reset:s;display:grid;gap:12px;margin-top:22px}
+ol.steps li{counter-increment:s;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 20px 16px 66px;color:var(--muted);font-size:15.5px}
+ol.steps li b{color:var(--text);display:block;margin-bottom:2px}
+ol.steps li::before{content:counter(s);position:absolute;left:20px;top:16px;width:32px;height:32px;border-radius:50%;background:var(--amber);color:#1a1206;font-weight:700;display:grid;place-items:center;font-family:var(--display);font-size:15px}
+
+.trayset{display:grid;gap:16px}
+.trayset img{border-radius:18px;border:1px solid var(--line2);box-shadow:0 30px 80px rgba(0,0,0,.5)}
+
+.diagram{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:22px;padding:22px}
 .diagram svg{width:100%;height:auto}
-@media (max-width:820px){.nas{grid-template-columns:1fr}}
 
-table.temps{width:100%;border-collapse:collapse;margin-top:28px;font-size:15px}
-table.temps th,table.temps td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
-table.temps th{color:var(--muted);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
-table.temps td:nth-child(2){color:var(--amber);font-weight:700}
-table.temps td:nth-child(3){color:var(--coral);font-weight:700}
+.flow{display:grid;gap:10px;margin-top:22px}
+.flow div{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 18px 14px 62px}
+.flow b{display:block;font-weight:600;font-size:15.5px}
+.flow span{color:var(--muted);font-size:14.5px}
+.flow i{font-style:normal;position:absolute;left:18px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(255,181,71,.14);color:var(--amber);font-weight:700;font-size:14px;font-family:var(--display)}
+
+/* ---------- limits table ---------- */
+.limits{margin-top:40px;background:var(--panel);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.limits table{width:100%;border-collapse:collapse;font-size:15.5px}
+.limits th,.limits td{text-align:left;padding:16px 20px;border-bottom:1px solid var(--line);vertical-align:top}
+.limits tr:last-child td{border-bottom:0}
+.limits th{color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;background:rgba(255,255,255,.02)}
+.limits td:first-child{font-weight:600;white-space:nowrap}
+.limits .w{color:var(--amber);font-weight:700;white-space:nowrap}
+.limits .c{color:var(--coral);font-weight:700;white-space:nowrap}
+.limits td:last-child{color:var(--muted)}
 .scroll{overflow-x:auto}
+@media (max-width:640px){
+  .limits thead{display:none}
+  .limits tr{display:grid;grid-template-columns:1fr auto auto;gap:4px 14px;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .limits tr:last-child{border-bottom:0}
+  .limits td{padding:0;border:0}
+  .limits td:last-child{grid-column:1/-1;font-size:14.5px;margin-top:4px}
+  .limits .w::before{content:"Warn ";color:var(--muted);font-weight:500}
+  .limits .c::before{content:"Critical ";color:var(--muted);font-weight:500}
+}
 
-.final{text-align:center;padding:100px 0 60px}
+/* ---------- install ---------- */
+.warn{margin-top:16px;background:rgba(255,181,71,.07);border:1px solid rgba(255,181,71,.25);border-radius:16px;padding:16px 18px;font-size:14.5px;color:#e8e2d4}
+.warn b{color:var(--amber)}
+.req{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.req div{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;font-size:14.5px;color:var(--muted)}
+.req b{display:block;color:var(--text);font-size:15px}
+
+/* ---------- FAQ ---------- */
+.faq{max-width:820px;margin:40px auto 0;display:grid;gap:10px}
+.faq details{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:0 22px}
+.faq summary{cursor:pointer;list-style:none;padding:18px 0;font-weight:600;font-size:16.5px;display:flex;justify-content:space-between;gap:16px;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s ease;flex:none;margin-top:-4px}
+.faq details[open] summary::after{transform:rotate(-135deg);margin-top:4px}
+.faq details p{color:var(--muted);padding:0 0 18px;font-size:15.5px}
+.faq code{font-size:13.5px;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:6px}
+
+.final{text-align:center;padding:130px 0 80px;position:relative;isolation:isolate}
+.final::before{content:"";position:absolute;inset:40px 0 0;z-index:-1;background:radial-gradient(560px 280px at 50% 60%,rgba(255,181,71,.12),transparent 70%)}
+.final .logo{width:64px;height:64px;margin:0 auto 18px;border-radius:16px}
 footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:14px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between}
 footer a{text-decoration:none}footer a:hover{color:var(--text)}
+
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.panel{animation:none}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
 <div class="island">
-  <nav>
-    <a class="brand" href="#top"><img src="images/icon.png" alt="">Sector</a>
-    <a class="link" href="#features">Features</a>
+  <nav aria-label="Main">
+    <a class="brand" href="#top"><img src="images/icon.png" alt="" width="22" height="22">Sector</a>
+    <a class="link" href="#tour">Tour</a>
     <a class="link" href="#nas">Your NAS</a>
-    <a class="link" href="https://github.com/bhxuk/sector/blob/main/docs/USER-GUIDE.md">Guide</a>
+    <a class="link" href="#updates">Updates</a>
+    <a class="link" href="#install">Install</a>
+    <a class="link" href="#faq">FAQ</a>
     <a class="get" href="https://github.com/bhxuk/sector/releases/latest/download/Sector-Setup.exe">Download</a>
   </nav>
 </div>
 
 <header class="hero" id="top">
   <div class="wrap">
-    <img class="logo" src="images/icon.png" alt="Sector icon">
-    <h1>Know how hot<br>everything is.</h1>
-    <p class="lead">Every temperature, fan and drive in your PC, and in your home-made NAS. Full SMART health for every hard drive,
-      a year of history, and an alert the moment anything runs hot.</p>
+    <img class="logo" src="images/icon.png" alt="Sector icon: an amber gauge with its needle near the red" width="76" height="76">
+    <div class="kicker">Free for Windows 10 and 11</div>
+    <h1>Know how hot<br><em>every drive</em> is.</h1>
+    <p class="lead">Temperatures, fans and full SMART health for your PC and your home-made NAS, a year of history,
+      and a warning the moment anything runs hot. Updates in one click, on every PC at once.</p>
     <div class="cta">
-      <a class="btn primary" href="https://github.com/bhxuk/sector/releases/latest/download/Sector-Setup.exe">Download for Windows</a>
-      <a class="btn ghost" href="https://github.com/bhxuk/sector">View on GitHub</a>
+      <a class="btn primary" href="https://github.com/bhxuk/sector/releases/latest/download/Sector-Setup.exe">
+        <svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Sector</a>
+      <a class="btn ghost" href="#tour">Take the tour</a>
     </div>
-    <p class="small">Free and open source. Windows 10 and 11, 64-bit.</p>
+    <p class="small">Open source · No account · Nothing leaves your network</p>
 
-    <div class="mock" aria-label="Sector showing a NAS with four drives">
-      <div class="bar"><i></i><i></i><i></i></div>
-      <div class="body">
-        <aside>
-          <div class="lbl">MACHINES</div>
-          <div class="m"><b>This PC</b><span style="color:var(--green)">34°<i class="dot"></i></span></div>
-          <div class="m on"><b>NAS</b><span style="color:var(--amber)">47°<i class="dot"></i></span></div>
-          <div class="lbl" style="margin-top:16px">VIEW</div>
-          <div class="nav on">Overview</div><div class="nav">Drives</div><div class="nav">All sensors</div><div class="nav">History</div><div class="nav">Alerts</div>
-        </aside>
-        <main>
-          <h3>Overview</h3>
-          <div class="sub">NAS (BHX-NAS) · up 41d 6h</div>
-          <div class="cards">
-            <div class="card"><div class="top">Bay 1 <span class="pill g">Healthy</span></div><div class="model">WD Red Plus 8TB · HDD · D:</div>
-              <div class="t"><b style="color:var(--green)">41°C</b><svg viewBox="0 0 100 30" preserveAspectRatio="none"><polyline fill="none" stroke="#8FD16A" stroke-width="1.6" points="0,20 10,19 20,18 30,19 40,17 50,16 60,17 70,15 80,16 90,15 100,14"/></svg></div>
-              <div class="meter"><i style="width:72%"></i></div><div class="foot"><span>72% used · 2.2 TB free</span><span>On for 2.1 years</span></div></div>
-            <div class="card"><div class="top">Bay 2 <span class="pill g">Healthy</span></div><div class="model">WD Red Plus 8TB · HDD · E:</div>
-              <div class="t"><b style="color:var(--amber)">47°C</b><svg viewBox="0 0 100 30" preserveAspectRatio="none"><polyline fill="none" stroke="#FFB547" stroke-width="1.6" points="0,18 10,16 20,15 30,13 40,12 50,10 60,10 70,9 80,8 90,8 100,7"/></svg></div>
-              <div class="meter"><i style="width:88%;background:var(--amber)"></i></div><div class="foot"><span>88% used · 0.9 TB free</span><span>On for 2.1 years</span></div></div>
-            <div class="card"><div class="top">Films <span class="pill a">Keep an eye on it</span></div><div class="model">Seagate IronWolf 12TB · HDD · F:</div>
-              <div class="t"><b style="color:var(--green)">44°C</b><svg viewBox="0 0 100 30" preserveAspectRatio="none"><polyline fill="none" stroke="#8FD16A" stroke-width="1.6" points="0,14 10,15 20,14 30,13 40,14 50,12 60,13 70,12 80,13 90,12 100,12"/></svg></div>
-              <div class="meter"><i style="width:61%"></i></div><div class="foot"><span>61% used · 4.6 TB free</span><span>On for 3.4 years</span></div></div>
-          </div>
-        </main>
-      </div>
+    <div class="shot reveal">
+      <div class="frame"><img src="images/overview.webp" width="2560" height="2546"
+        alt="Sector's Overview for a NAS: processor at 46°C, memory at 38%, the hottest drive at 47°C, then a card for each of five drives with its temperature, a 15-minute line, health and space, followed by every temperature sensor and fan"></div>
+      <img class="float" src="images/tray.webp" width="1520" height="860" loading="lazy"
+        alt="A Windows notification from Sector saying Bay 2 is running hot at 47°C on the NAS, above a taskbar showing 47 in an amber frame by the clock">
+    </div>
+
+    <div class="strip reveal">
+      <div><b>2 s</b><span>between readings</span></div>
+      <div><b>1 year</b><span>of history, kept day and night</span></div>
+      <div><b>Every</b><span>SMART attribute, in plain English</span></div>
+      <div><b>1 click</b><span>to update every PC</span></div>
     </div>
   </div>
 </header>
 
-<main>
-<section id="features">
+<main id="main">
+
+<section>
+  <div class="wrap center">
+    <div class="kicker">Why Sector</div>
+    <h2>Everything your hardware reports.<br>Said simply.</h2>
+    <p class="intro">Sector reads the same sensors as the best monitoring tools, keeps the history for you, and tells you what the numbers mean.</p>
+    <div class="why reveal" style="text-align:left">
+      <div><span class="ic amber"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 14h16M16.5 16.5h.01M7 16.5h5"/></svg></span>
+        <h3>Drive temperatures and health</h3><p>Every hard drive and SSD: live temperature, bad and unstable sectors, cable errors, power-on time and data written, with a verdict you can act on.</p></div>
+      <div><span class="ic teal"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7zM10 10h4v4h-4zM9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span>
+        <h3>CPU, graphics and motherboard</h3><p>Package and core temperatures, clocks, load and power, the graphics card, and every sensor on the motherboard, including the VRMs.</p></div>
+      <div><span class="ic blue"><svg viewBox="0 0 24 24"><path d="M12 10.5a1.5 1.5 0 1 0 0 3a1.5 1.5 0 1 0 0-3M12 10.5C11 6 12 3 15 3s3 4-1.5 7.5M13.5 12c4.5-1 7.5 0 7.5 3s-4 3-7.5-1.5M12 13.5c1 4.5 0 7.5-3 7.5s-3-4 1.5-7.5M10.5 12C6 13 3 12 3 9s4-3 7.5 1.5"/></svg></span>
+        <h3>Every fan</h3><p>Speeds in RPM for every fan the motherboard can see, with how hard each is being driven. Optional alert if one stops.</p></div>
+      <div><span class="ic green"><svg viewBox="0 0 24 24"><path d="M4 4v16h16M7 15l4-5 3 3 5-7"/></svg></span>
+        <h3>A year of history</h3><p>A background service records around the clock, even when nobody's signed in. Chart an hour or a year and see the peak and when it happened.</p></div>
+      <div><span class="ic coral"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6 3 7 3 7H3s3-1 3-7M10 20a2 2 0 0 0 4 0"/></svg></span>
+        <h3>Alerts that make sense</h3><p>Hot drives, CPUs and graphics cards, new bad sectors, stopped fans and PCs that go offline. Your limits, per drive if you like.</p></div>
+      <div><span class="ic amber"><svg viewBox="0 0 24 24"><path d="M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01M12 7h5M12 17h5"/></svg></span>
+        <h3>All your PCs in one window</h3><p>Watch your NAS from your desk over your home network or Tailscale. Each PC shows its hottest drive right in the sidebar.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tour">
+  <div class="wrap center">
+    <div class="kicker">The tour</div>
+    <h2>One window. Every number.</h2>
+    <div class="tabs" role="tablist" aria-label="Sector pages">
+      <button class="tab" role="tab" id="t-overview" aria-controls="p-overview" aria-selected="true">
+        <svg viewBox="0 0 24 24"><path d="M4 18a9 9 0 1 1 16 0M12 14l4-5"/></svg>Overview</button>
+      <button class="tab" role="tab" id="t-drives" aria-controls="p-drives" aria-selected="false" tabindex="-1">
+        <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 14h16M16.5 16.5h.01"/></svg>Drives</button>
+      <button class="tab" role="tab" id="t-history" aria-controls="p-history" aria-selected="false" tabindex="-1">
+        <svg viewBox="0 0 24 24"><path d="M4 4v16h16M7 15l4-5 3 3 5-7"/></svg>History</button>
+      <button class="tab" role="tab" id="t-machines" aria-controls="p-machines" aria-selected="false" tabindex="-1">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01"/></svg>Machines</button>
+    </div>
+  </div>
   <div class="wrap">
-    <h2>Everything your hardware reports.</h2>
-    <p class="intro">Sector reads the same sensors as the best monitoring tools, keeps the history, and tells you in plain words what it means.</p>
-    <div class="grid">
-      <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 14h16M16.5 16.5h.01M7 16.5h5"/></svg></div>
-        <h4>Drive temperatures and health</h4><p>Every hard drive and SSD: live temperature, SMART attributes, bad sectors, power-on time, data written, and a health verdict you can act on.</p></div>
-      <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7zM10 10h4v4h-4zM9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></div>
-        <h4>CPU, graphics and motherboard</h4><p>Core and package temperatures, clocks, load and power, graphics card temperature and memory, and every motherboard sensor.</p></div>
-      <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 10.5a1.5 1.5 0 1 0 0 3a1.5 1.5 0 1 0 0-3M12 10.5C11 6 12 3 15 3s3 4-1.5 7.5M13.5 12c4.5-1 7.5 0 7.5 3s-4 3-7.5-1.5M12 13.5c1 4.5 0 7.5-3 7.5s-3-4 1.5-7.5M10.5 12C6 13 3 12 3 9s4-3 7.5 1.5"/></svg></div>
-        <h4>Fan speeds</h4><p>Every fan the motherboard can see, in RPM, with how hard it's being driven. Get an alert if one stops.</p></div>
-      <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 4v16h16M7 15l4-5 3 3 5-7"/></svg></div>
-        <h4>A year of history</h4><p>Recorded around the clock by a background service. Chart any period from an hour to a year and see the lowest, average and peak.</p></div>
-      <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6 3 7 3 7H3s3-1 3-7M10 20a2 2 0 0 0 4 0"/></svg></div>
-        <h4>Alerts that make sense</h4><p>Hot drives, CPUs and graphics cards, new bad sectors, stopped fans and PCs that drop offline. Your limits, per drive if you like.</p></div>
-      <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 0 1 4 0v8.5a4 4 0 1 1-4 0zM12 9v7"/></svg></div>
-        <h4>A live number by the clock</h4><p>Your hottest drive's temperature in the notification area, turning amber and red as it nears your limits.</p></div>
+    <div class="panel" role="tabpanel" id="p-overview" aria-labelledby="t-overview">
+      <div><h3>The whole machine at a glance</h3>
+        <p>Open Sector and you see what matters first: how hot things are, and whether any drive needs attention.</p>
+        <ul class="ticks">
+          <li>CPU, graphics and memory with their last 15 minutes</li>
+          <li>A card per drive: temperature in green, amber or red against your limit</li>
+          <li>Health, space used and power-on time on every card</li>
+          <li>Every other temperature sensor and fan, grouped by part</li>
+        </ul></div>
+      <div class="frame"><img src="images/overview.webp" width="2560" height="2546" loading="lazy" alt="The Overview page for a NAS with five drives"></div>
+    </div>
+    <div class="panel" role="tabpanel" id="p-drives" aria-labelledby="t-drives" hidden>
+      <div><h3>Everything about every drive</h3>
+        <p>A table of all your drives, and every detail of the one you pick. Health is explained in words, not just numbers.</p>
+        <ul class="ticks">
+          <li>"Healthy", "Keep an eye on it" or "Back it up now", with the reasons</li>
+          <li>Reallocated, pending and unreadable sectors, and cable errors</li>
+          <li>Temperature for the last day, week, month or year</li>
+          <li>Name your drives ("Bay 2", "Films") and give each its own limit</li>
+          <li>The full SMART table when you want it</li>
+        </ul></div>
+      <div class="frame"><img src="images/drives.webp" width="2560" height="2418" loading="lazy" alt="The Drives page: a table of five drives, then the Films drive in detail with 8 reallocated sectors, a 24-hour temperature chart and its lifetime figures"></div>
+    </div>
+    <div class="panel" role="tabpanel" id="p-history" aria-labelledby="t-history" hidden>
+      <div><h3>See the pattern, not just the moment</h3>
+        <p>Is the NAS hot every evening? Did that new fan help? History answers in a glance.</p>
+        <ul class="ticks">
+          <li>Every drive on one chart, with your limit marked</li>
+          <li>CPU and graphics, fans, drive activity and load too</li>
+          <li>Hover anywhere to read every line at that moment</li>
+          <li>Lowest, average and highest for the period, and when the peak was</li>
+        </ul></div>
+      <div class="frame"><img src="images/history.webp" width="2560" height="1920" loading="lazy" alt="The History page charting five drive temperatures over 7 days, peaking every evening, with a readout for Monday at 20:30"></div>
+    </div>
+    <div class="panel" role="tabpanel" id="p-machines" aria-labelledby="t-machines" hidden>
+      <div><h3>Your PC, your NAS, and anything else</h3>
+        <p>Add any Windows PC running Sector with its address and a pairing key. Then update, alert on and watch it from here.</p>
+        <ul class="ticks">
+          <li>This PC's sharing switch, pairing key and addresses</li>
+          <li>Works over your home network and Tailscale</li>
+          <li>Update another PC from your desk, or let it update itself</li>
+          <li>Alerts on or off per PC</li>
+        </ul></div>
+      <div class="frame"><img src="images/machines.webp" width="2560" height="1630" loading="lazy" alt="The Machines page: the agent running, the sharing switch, a pairing key, and the NAS listed with Update, Auto-update and Alerts controls"></div>
     </div>
   </div>
 </section>
 
 <section id="nas">
   <div class="wrap">
-    <h2>Built for the NAS that runs hot.</h2>
-    <p class="intro">Install Sector on your Windows NAS too, and watch every drive in it from your desktop, over your home network or Tailscale.</p>
-    <div class="nas">
-      <ol class="steps">
-        <li><b>Install Sector on the NAS</b>Tick "Let my other PCs see this PC". It only answers your local network and Tailscale.</li>
-        <li><b>Copy its pairing key</b>From Sector &gt; Machines on the NAS.</li>
-        <li><b>Add it on your desktop</b>Type its Tailscale name or IP and the key. It appears in the sidebar with its hottest drive beside it.</li>
-        <li><b>Leave it running</b>The NAS keeps its own history day and night, and your desktop warns you when a drive gets too warm.</li>
-      </ol>
-      <div class="diagram">
-        <svg viewBox="0 0 420 220" role="img" aria-label="The Sector app on your desktop reads from the Sector agent on your NAS over Tailscale">
-          <rect x="10" y="30" width="150" height="160" rx="18" fill="#151823" stroke="rgba(255,255,255,.14)"/>
-          <text x="85" y="62" fill="#f4f2ee" font-family="Sora" font-size="15" font-weight="600" text-anchor="middle">Your desktop</text>
-          <rect x="30" y="80" width="110" height="38" rx="10" fill="rgba(255,181,71,.16)"/>
-          <text x="85" y="104" fill="#FFB547" font-family="Figtree" font-size="13" font-weight="700" text-anchor="middle">Sector app</text>
-          <rect x="30" y="130" width="110" height="38" rx="10" fill="rgba(255,255,255,.05)"/>
-          <text x="85" y="154" fill="rgba(244,242,238,.7)" font-family="Figtree" font-size="13" text-anchor="middle">Sector agent</text>
-          <rect x="260" y="30" width="150" height="160" rx="18" fill="#151823" stroke="rgba(255,255,255,.14)"/>
-          <text x="335" y="62" fill="#f4f2ee" font-family="Sora" font-size="15" font-weight="600" text-anchor="middle">Your NAS</text>
-          <rect x="280" y="80" width="110" height="38" rx="10" fill="rgba(94,211,195,.14)"/>
-          <text x="335" y="104" fill="#5ED3C3" font-family="Figtree" font-size="13" font-weight="700" text-anchor="middle">Sector agent</text>
-          <g fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.18)"><rect x="284" y="132" width="22" height="40" rx="4"/><rect x="312" y="132" width="22" height="40" rx="4"/><rect x="340" y="132" width="22" height="40" rx="4"/><rect x="368" y="132" width="22" height="40" rx="4"/></g>
-          <path d="M142 99 H278" stroke="#FFB547" stroke-width="2" stroke-dasharray="5 5"/>
-          <path d="M270 93 l8 6 -8 6" fill="none" stroke="#FFB547" stroke-width="2"/>
-          <text x="210" y="88" fill="rgba(244,242,238,.62)" font-family="Figtree" font-size="12" text-anchor="middle">Tailscale or LAN</text>
-          <text x="210" y="120" fill="rgba(244,242,238,.62)" font-family="Figtree" font-size="12" text-anchor="middle">pairing key</text>
+    <div class="center">
+      <div class="kicker">Made for the NAS that runs hot</div>
+      <h2>Watch every drive in your NAS<br>from your desk.</h2>
+      <p class="intro">Install Sector on the NAS too. It records its own history around the clock, and your desktop warns you when a drive gets too warm.</p>
+    </div>
+    <div class="split reveal">
+      <div class="copy">
+        <h3>Set up in a couple of minutes</h3>
+        <ol class="steps">
+          <li><b>Install Sector on the NAS</b>Tick "Let my other PCs see this PC's stats".</li>
+          <li><b>Copy its pairing key</b>From Sector &gt; Machines on the NAS.</li>
+          <li><b>Add it on your desktop</b>Type its Tailscale name or IP and the key. Done.</li>
+        </ol>
+      </div>
+      <div class="diagram" role="img" aria-label="The Sector app on your desktop reads from the Sector agent on your NAS over your home network or Tailscale, using a pairing key. Each PC's agent reads its own sensors.">
+        <svg viewBox="0 0 560 270" aria-hidden="true">
+          <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#FFB547"/></marker></defs>
+          <rect x="14" y="28" width="200" height="214" rx="20" fill="#151823" stroke="rgba(255,255,255,.14)"/>
+          <text x="114" y="62" fill="#f4f2ee" font-family="Sora,sans-serif" font-size="16" font-weight="600" text-anchor="middle">Your desktop</text>
+          <rect x="38" y="84" width="152" height="46" rx="12" fill="rgba(255,181,71,.16)"/>
+          <text x="114" y="113" fill="#FFB547" font-family="Figtree,sans-serif" font-size="14" font-weight="700" text-anchor="middle">Sector app</text>
+          <rect x="38" y="146" width="152" height="46" rx="12" fill="rgba(255,255,255,.05)"/>
+          <text x="114" y="175" fill="rgba(244,242,238,.75)" font-family="Figtree,sans-serif" font-size="14" text-anchor="middle">Sector agent</text>
+          <text x="114" y="222" fill="rgba(244,242,238,.5)" font-family="Figtree,sans-serif" font-size="12" text-anchor="middle">this PC's sensors</text>
+          <rect x="346" y="28" width="200" height="214" rx="20" fill="#151823" stroke="rgba(255,255,255,.14)"/>
+          <text x="446" y="62" fill="#f4f2ee" font-family="Sora,sans-serif" font-size="16" font-weight="600" text-anchor="middle">Your NAS</text>
+          <rect x="370" y="84" width="152" height="46" rx="12" fill="rgba(94,211,195,.14)"/>
+          <text x="446" y="113" fill="#5ED3C3" font-family="Figtree,sans-serif" font-size="14" font-weight="700" text-anchor="middle">Sector agent</text>
+          <g stroke="rgba(255,255,255,.2)"><rect x="378" y="150" width="28" height="56" rx="5" fill="rgba(143,209,106,.18)"/><rect x="412" y="150" width="28" height="56" rx="5" fill="rgba(255,181,71,.22)"/><rect x="446" y="150" width="28" height="56" rx="5" fill="rgba(143,209,106,.18)"/><rect x="480" y="150" width="28" height="56" rx="5" fill="rgba(143,209,106,.18)"/></g>
+          <text x="446" y="228" fill="rgba(244,242,238,.5)" font-family="Figtree,sans-serif" font-size="12" text-anchor="middle">drives, CPU, fans, history</text>
+          <path d="M192 107 H366" stroke="#FFB547" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#ar)"/>
+          <text x="280" y="94" fill="rgba(244,242,238,.7)" font-family="Figtree,sans-serif" font-size="12.5" text-anchor="middle">Home network or Tailscale</text>
+          <text x="280" y="128" fill="rgba(244,242,238,.5)" font-family="Figtree,sans-serif" font-size="12" text-anchor="middle">with the pairing key</text>
         </svg>
       </div>
     </div>
 
-    <h2 style="margin-top:72px;font-size:28px">How hot is too hot?</h2>
-    <p class="intro">Sector starts with sensible limits. Change them, or set one per drive.</p>
-    <div class="scroll"><table class="temps">
-      <tr><th></th><th>Warn</th><th>Critical</th><th>Why</th></tr>
-      <tr><td>Hard drives</td><td>45°C</td><td>50°C</td><td>They last longest below about 45°C. Months in the high 40s is a sign to add airflow.</td></tr>
-      <tr><td>SSDs and NVMe</td><td>65°C</td><td>75°C</td><td>They run warmer, and slow themselves down at around 70 to 80°C.</td></tr>
-      <tr><td>CPU</td><td>85°C</td><td>95°C</td><td>Modern CPUs boost right up to their limit, so short peaks are normal.</td></tr>
-      <tr><td>Graphics</td><td>83°C</td><td>90°C</td><td>Most cards slow down at around 83 to 90°C.</td></tr>
-    </table></div>
+    <div class="split flip reveal">
+      <div class="copy">
+        <h3>The number that matters, by the clock</h3>
+        <p>Sector puts your hottest NAS drive's temperature in the notification area. It turns amber at your limit and red when it's critical. Hover for every drive.</p>
+        <ul class="ticks">
+          <li>Notifications when a drive, CPU or graphics card runs hot</li>
+          <li>And when a drive's health gets worse or the NAS goes offline</li>
+          <li>Reminders while it lasts, and a note when it clears</li>
+        </ul>
+      </div>
+      <div class="trayset">
+        <img src="images/traytip.webp" width="1120" height="600" loading="lazy" alt="Hovering the 47 by the clock shows the NAS's drives: Bay 2 47°C, Samsung SSD 46°C, Films 44°C, Bay 1 41°C, Backups 39°C">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="updates">
+  <div class="wrap">
+    <div class="split reveal">
+      <div class="copy">
+        <div class="kicker">Updates</div>
+        <h2 style="font-size:clamp(28px,3.6vw,40px)">One click updates<br>every PC.</h2>
+        <p>When a new version is out, Sector tells you once. Click <b>Update all</b> and the NAS and this PC both update themselves, then Sector reopens. No installer to run, and no Windows permission prompt.</p>
+        <div class="flow">
+          <div><i>1</i><b>You click</b><span>On the notification, or Update all in Sector.</span></div>
+          <div><i>2</i><b>Each PC installs</b><span>Its agent downloads the official release and installs it quietly.</span></div>
+          <div><i>3</i><b>Sector reopens</b><span>About a minute later, on the new version.</span></div>
+        </div>
+        <p class="small" style="text-align:left">Prefer not to click at all? Turn on automatic updates, per PC.</p>
+      </div>
+      <div class="frame"><img src="images/machines.webp" width="2560" height="1630" loading="lazy" alt="Sector offering an update: 'NAS is on Sector 1.0.0. 1.1.0 is ready', with an Update NAS button"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <div class="kicker">Sensible from the start</div>
+      <h2>How hot is too hot?</h2>
+      <p class="intro">Sector starts with these limits. Change them in Settings, or set one for each drive.</p>
+    </div>
+    <div class="limits scroll reveal">
+      <table>
+        <thead><tr><th scope="col">Part</th><th scope="col">Warn</th><th scope="col">Critical</th><th scope="col">Why</th></tr></thead>
+        <tbody>
+          <tr><td>Hard drives</td><td class="w">45°C</td><td class="c">50°C</td><td>Most are rated to 55 or 60°C but last longest below about 45°C. Months in the high 40s is a sign the drive cage needs more air.</td></tr>
+          <tr><td>SSDs and NVMe</td><td class="w">65°C</td><td class="c">75°C</td><td>They run warmer, and slow themselves down at around 70 to 80°C.</td></tr>
+          <tr><td>CPU</td><td class="w">85°C</td><td class="c">95°C</td><td>Modern CPUs boost right up to their limit, so short peaks under load are normal.</td></tr>
+          <tr><td>Graphics</td><td class="w">83°C</td><td class="c">90°C</td><td>Most cards slow down somewhere between 83 and 90°C.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="split reveal">
+      <div class="copy">
+        <div class="kicker">Install</div>
+        <h2 style="font-size:clamp(28px,3.6vw,40px)">Up and running<br>in a minute.</h2>
+        <div class="req">
+          <div><b>Windows 10 or 11</b>64-bit, version 1809 or later</div>
+          <div><b>About 200 MB</b>Plus a few hundred MB of history a year</div>
+        </div>
+      </div>
+      <div>
+        <ol class="steps">
+          <li><b>Download Sector-Setup.exe</b>And double-click it. Windows asks for permission once, to set up the background service.</li>
+          <li><b>Keep "Install PawnIO" ticked</b>It's the small signed driver for CPU temperatures and fan speeds. Drive temperatures work without it.</li>
+          <li><b>On your NAS, also tick sharing</b>"Let my other PCs see this PC's stats". Leave it off everywhere else.</li>
+        </ol>
+        <div class="warn"><b>"Windows protected your PC"?</b> That appears because the installer isn't code-signed, not because anything is wrong. Click <b>More info</b>, then <b>Run anyway</b>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="center">
+      <div class="kicker">Questions</div>
+      <h2>Good to know</h2>
+    </div>
+    <div class="faq reveal">
+      <details><summary>Is it safe to let my other PCs see the NAS?</summary>
+        <p>Sharing only accepts connections from your local network and Tailscale addresses (the firewall rule is limited to those), every request needs the pairing key, and other PCs can only read. Settings can only be changed on the PC itself, and the only thing another PC can start is an update to the official release. Click <b>New key</b> to lock out any PC that has the old one.</p></details>
+      <details><summary>Why does a drive say "No reading"?</summary>
+        <p>It isn't sharing SMART data with Windows. That's common for drives in USB enclosures and behind RAID cards. Drives connected straight to the motherboard (SATA or NVMe) work best.</p></details>
+      <details><summary>Why are CPU temperatures or fans missing?</summary>
+        <p>They need the PawnIO driver. The installer offers it, and Sector shows a one-click install if it's missing. If fans still don't show, the motherboard may not report them, or they may be plugged into a hub or the power supply, which can't be read.</p></details>
+      <details><summary>Does my NAS have to run Windows?</summary>
+        <p>For now, yes. Sector's agent is a Windows service. Any Windows PC can be watched, whether it's a NAS, a home server or a gaming PC.</p></details>
+      <details><summary>Does anything leave my network?</summary>
+        <p>No readings or history ever leave your PCs. The only outside connection is to GitHub, to check for new versions of Sector.</p></details>
+      <details><summary>Where's the history kept, and how do I remove Sector?</summary>
+        <p>Each PC keeps its own history in <code>C:\ProgramData\Sector</code>. Uninstall from Windows Settings &gt; Apps; it removes the service and the firewall rule, and asks whether to delete the history too.</p></details>
+    </div>
   </div>
 </section>
 
 <section class="final">
   <div class="wrap">
-    <h2>Get Sector.</h2>
-    <p class="intro" style="margin:12px auto 0">Install it on your PC and your NAS. Drive temperatures work straight away; the installer adds the PawnIO driver for CPU temperatures and fans.</p>
-    <div class="cta"><a class="btn primary" href="https://github.com/bhxuk/sector/releases/latest/download/Sector-Setup.exe">Download for Windows</a></div>
-    <p class="small">Windows may say "Windows protected your PC" because the installer isn't code-signed. Click More info, then Run anyway.</p>
+    <img class="logo" src="images/icon.png" alt="" width="64" height="64">
+    <h2>Keep your drives cool.</h2>
+    <p class="intro">Install Sector on your PC and your NAS. It's free and open source.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/bhxuk/sector/releases/latest/download/Sector-Setup.exe">
+        <svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Sector</a>
+      <a class="btn ghost" href="https://github.com/bhxuk/sector/blob/main/docs/USER-GUIDE.md">Read the guide</a>
+    </div>
   </div>
 </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <span>Sector by bhxuk · MIT licence · Sensors by LibreHardwareMonitor</span>
-    <span><a href="https://github.com/bhxuk/sector">GitHub</a> · <a href="https://github.com/bhxuk/sector/blob/main/CHANGELOG.md">What's new</a> · <a href="https://github.com/bhxuk/arrakis">Arrakis</a></span>
+    <span>Sector by bhxuk · MIT licence · Sensor readings by LibreHardwareMonitor</span>
+    <span><a href="https://github.com/bhxuk/sector">GitHub</a> · <a href="https://github.com/bhxuk/sector/blob/main/CHANGELOG.md">What's new</a> · <a href="https://github.com/bhxuk/sector/issues">Report a problem</a> · <a href="https://bhxuk.github.io/arrakis/">Arrakis</a></span>
   </div>
 </footer>
+
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  function select(tab, focus) {
+    tabs.forEach(function (t) {
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) tab.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { select(t, false); });
+    t.addEventListener('keydown', function (e) {
+      var n = null;
+      if (e.key === 'ArrowRight') n = tabs[(i + 1) % tabs.length];
+      if (e.key === 'ArrowLeft') n = tabs[(i - 1 + tabs.length) % tabs.length];
+      if (e.key === 'Home') n = tabs[0];
+      if (e.key === 'End') n = tabs[tabs.length - 1];
+      if (n) { e.preventDefault(); select(n, true); }
+    });
+  });
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  els.forEach(function (e) { io.observe(e); });
+})();
+</script>
 </body>
 </html>

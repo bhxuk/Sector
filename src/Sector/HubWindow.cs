@@ -320,7 +320,7 @@ namespace Sector
                 if (lu != null && (lu.Available || AppUpdater.Busy(lu) || lu.State == "Failed")) { target = local; u = lu; }
             }
 
-            string key = target == null ? "" : target.Entry.Id + "|" + u.State + "|" + u.Latest + "|" + (u.State == "Downloading" ? u.Progress / 5 : 0) + "|" + u.Message;
+            string key = target == null ? "" : target.Entry.Id + "|" + AppUpdater.Pending().Count + "|" + u.State + "|" + u.Latest + "|" + (u.State == "Downloading" ? u.Progress / 5 : 0) + "|" + u.Message;
             if (key == _updateKey) return;
             _updateKey = key;
             if (target == null)
@@ -346,15 +346,19 @@ namespace Sector
                     action = FlatButton.Secondary("Try again", () => _ = AppUpdater.Install(target));
                     break;
                 default:
-                    text = target.Entry.IsLocal
-                        ? $"Sector {u.Latest} is ready. You're on {u.Current}."
-                        : $"{target.Name} is on Sector {u.Current}. {u.Latest} is ready.";
-                    var b = FlatButton.Primary(target.Entry.IsLocal ? "Update now" : "Update " + target.Name, null);
+                    var pending = AppUpdater.Pending();
+                    bool all = pending.Count > 1;
+                    text = all
+                        ? $"Sector {u.Latest} is ready for {string.Join(" and ", pending.Select(x => x.Entry.IsLocal ? "this PC" : x.Name))}."
+                        : target.Entry.IsLocal
+                            ? $"Sector {u.Latest} is ready. You're on {u.Current}."
+                            : $"{target.Name} is on Sector {u.Current}. {u.Latest} is ready.";
+                    var b = FlatButton.Primary(all ? "Update all" : target.Entry.IsLocal ? "Update now" : "Update " + target.Name, null);
                     b.MinHeight = 36;
                     b.Click += async (o, e) =>
                     {
                         b.IsEnabled = false;
-                        string err = await AppUpdater.Install(target);
+                        string err = all ? await AppUpdater.InstallAll() : await AppUpdater.Install(target);
                         if (!string.IsNullOrEmpty(err)) { MessageBox.Show(err, "Sector"); b.IsEnabled = true; }
                     };
                     var notes = FlatButton.Secondary("What's new", () => Shell.Open("https://github.com/" + Updates.Repo + "/blob/main/CHANGELOG.md"));

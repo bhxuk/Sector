@@ -61,6 +61,8 @@ namespace Sector.Core
         public bool Fahrenheit { get; set; } = false;
         public int RefreshSeconds { get; set; } = 2;
         public bool FirstRun { get; set; } = true;
+        /// <summary>The version that last ran, so Sector can say when an update has finished.</summary>
+        public string LastVersion { get; set; } = "";
         public bool CheckForUpdates { get; set; } = true;
         public bool AutoUpdate { get; set; } = false;
         public string TrayShows { get; set; } = "Hottest drive";   // Hottest drive, CPU, GPU, Nothing

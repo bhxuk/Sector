@@ -10,7 +10,7 @@ Live CPU, graphics, motherboard and drive temperatures, fan speeds, loads and po
 Full SMART health for every hard drive and SSD, a year of history in charts, and alerts when anything runs hot.
 Watch a home-made Windows NAS from your desktop over your network or Tailscale.
 
-**[Download Sector for Windows](https://github.com/bhxuk/sector/releases/latest/download/Sector-Setup.exe)**  ·  [User guide](docs/USER-GUIDE.md)  ·  [What's new](CHANGELOG.md)
+**[Download Sector for Windows](https://github.com/bhxuk/sector/releases/latest/download/Sector-Setup.exe)**  ·  [Website](https://bhxuk.github.io/Sector/)  ·  [User guide](docs/USER-GUIDE.md)  ·  [What's new](CHANGELOG.md)
 
 </div>
 
@@ -29,7 +29,7 @@ Watch a home-made Windows NAS from your desktop over your network or Tailscale.
 
 And across the app: a **live temperature by the clock** (the hottest drive by default, turning amber and red near your limits),
 **notifications** for hot drives, CPUs and graphics cards, drive health changes, fans that stop and PCs that go offline,
-**Celsius or Fahrenheit**, **light and dark themes** with the same accents and glass window as [Arrakis](https://github.com/bhxuk/arrakis),
+**one-click updates** for every PC at once (no permission prompts), **Celsius or Fahrenheit**, **light and dark themes** with the same accents and glass window as [Arrakis](https://github.com/bhxuk/arrakis),
 and **automatic updates**.
 
 ## How it works

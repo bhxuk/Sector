@@ -81,7 +81,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 #ifexist "..\publish\PawnIO_setup.exe"
 Filename: "{app}\PawnIO_setup.exe"; Parameters: "-install"; StatusMsg: "Installing the PawnIO driver..."; Flags: waituntilterminated; Tasks: pawnio
 #endif
-Filename: "{app}\{#AgentExe}"; Parameters: "--allow-remote on"; StatusMsg: "Sharing this PC's stats with your other PCs..."; Flags: runhidden waituntilterminated; Tasks: share
+Filename: "{app}\{#AgentExe}"; Parameters: "--allow-remote on"; StatusMsg: "Sharing this PC's stats with your other PCs..."; Flags: runhidden waituntilterminated; Tasks: share; Check: not WizardSilent
 Filename: "{sys}\sc.exe"; Parameters: "create {#ServiceName} binPath= ""\""{app}\{#AgentExe}\"""" start= delayed-auto DisplayName= ""Sector Agent"""; StatusMsg: "Setting up the Sector agent..."; Flags: runhidden waituntilterminated
 Filename: "{sys}\sc.exe"; Parameters: "config {#ServiceName} binPath= ""\""{app}\{#AgentExe}\"""" start= delayed-auto"; Flags: runhidden waituntilterminated
 Filename: "{sys}\sc.exe"; Parameters: "description {#ServiceName} ""Reads this PC's temperatures, fans and drive health for Sector."""; Flags: runhidden waituntilterminated

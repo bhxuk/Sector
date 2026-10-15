@@ -17,6 +17,7 @@ namespace Sector.Core
     {
         private static readonly HashSet<string> Offered = new HashSet<string>();
         private static bool _closing;
+        private static bool _notifyQueued;
 
         public static event Action Changed;
 
@@ -41,9 +42,21 @@ namespace Sector.Core
 
             if (u.Available && !Busy(u) && Offered.Add(m.Entry.Id + "|" + u.Latest))
             {
-                string who = m.Entry.IsLocal ? "" : " on " + m.Name;
-                App.Instance?.Tray?.Notify($"Sector {u.Latest} is ready{who}", "Click here to update. It takes about a minute and Sector reopens by itself.",
-                    () => _ = Install(m));
+                // One notification for the lot: clicking it updates every PC that needs it.
+                if (!_notifyQueued)
+                {
+                    _notifyQueued = true;
+                    App.Instance?.Dispatcher.BeginInvoke(new Action(async () =>
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(8));   // let the other PCs report in first
+                        _notifyQueued = false;
+                        var pending = Pending();
+                        if (pending.Count == 0) return;
+                        string names = string.Join(" and ", pending.Select(x => x.Entry.IsLocal ? "this PC" : x.Name));
+                        App.Instance?.Tray?.Notify($"Sector {u.Latest} is ready for {names}", "Click here to update. It takes about a minute and Sector reopens by itself.",
+                            () => _ = InstallAll());
+                    }));
+                }
                 if (m.Entry.IsLocal) App.Instance?.Tray?.ShowUpdateItem(u.Latest);
             }
             Changed?.Invoke();
@@ -68,6 +81,25 @@ namespace Sector.Core
                 return s.State == "Failed" ? s.Message : "";
             }
             catch (Exception ex) { return "Couldn't start the update: " + ex.Message; }
+        }
+
+        /// <summary>Every online PC with an update waiting, other PCs first and this PC last (this PC's window closes for its install).</summary>
+        public static List<MachineState> Pending() =>
+            Fleet.Machines.Where(x => StatusOf(x) is UpdateStatus s && s.Available && !Busy(s))
+                          .OrderBy(x => x.Entry.IsLocal ? 1 : 0).ToList();
+
+        /// <summary>The one click for everything: starts the update on every PC that needs it.</summary>
+        public static async Task<string> InstallAll()
+        {
+            var list = Pending();
+            if (list.Count == 0) return "Everything is already up to date.";
+            var errors = new List<string>();
+            foreach (var m in list)
+            {
+                string err = await Install(m);
+                if (!string.IsNullOrEmpty(err)) errors.Add(m.Name + ": " + err);
+            }
+            return string.Join("\n", errors);
         }
 
         public static async Task<UpdateStatus> CheckNow(MachineState m)

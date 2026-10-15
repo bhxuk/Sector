@@ -21,7 +21,7 @@ namespace Sector.Pages
             var s = m.Snapshot;
             return string.Join("|", s.Drives.Select(d => Settings.DriveKey(m.Entry.Id, d))) + "#" +
                    string.Join("|", s.Hardware.SelectMany(h => h.Sensors.Where(x => x.Type == "Temperature" || x.Type == "Fan").Select(x => x.Id))) +
-                   "#" + s.Summary.GpuName + "#" + Settings.Current.Fahrenheit;
+                   "#" + s.Summary.GpuName + s.Summary.GpuTemp.HasValue + "#" + Settings.Current.Fahrenheit;
         }
 
         protected override UIElement Compose(MachineState m)
@@ -33,7 +33,9 @@ namespace Sector.Pages
             var page = new StackPanel();
 
             // ---- Headline tiles ----
-            var tiles = new FlowGrid(210, 4);
+            // Integrated graphics often report no temperature at all; only show the tile when there's something to show.
+            bool gpuTile = !string.IsNullOrEmpty(snap.Summary.GpuName) && snap.Summary.GpuTemp.HasValue;
+            var tiles = new FlowGrid(210, gpuTile ? 4 : 3);
             tiles.Add(Tile(Icons.Cpu, "Processor", snap.Summary.CpuName, s => s.Summary.CpuTemp, s => s.Summary.CpuTempSensor,
                 s => new[]
                 {
@@ -41,7 +43,7 @@ namespace Sector.Pages
                     ("Clock", Format.Mhz(s.Summary.CpuClock)),
                     ("Power", Format.Watts(s.Summary.CpuPower))
                 }, Settings.Current.Alerts.CpuWarn, Settings.Current.Alerts.CpuCritical));
-            if (!string.IsNullOrEmpty(snap.Summary.GpuName))
+            if (gpuTile)
             {
                 tiles.Add(Tile(Icons.Gpu, "Graphics", snap.Summary.GpuName, s => s.Summary.GpuTemp, s => s.Summary.GpuTempSensor,
                     s => new[]

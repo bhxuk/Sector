@@ -12,6 +12,7 @@ Everything Sector can do, and how to do it. If something isn't covered here,
 - [Alerts](#alerts)
 - [The icon by the clock](#the-icon-by-the-clock)
 - [Settings](#settings)
+- [Updates](#updates)
 - [How hot is too hot?](#how-hot-is-too-hot)
 - [Troubleshooting](#troubleshooting)
 
@@ -140,7 +141,25 @@ Left-click it to open Sector; right-click for Drives, History, Alerts and Exit.
 - **Alerts**: limits for hard drives, SSDs, the CPU and graphics, which alerts you want, how often to remind you,
   and a test alert.
 - **History on this PC**: how long to keep history, and where it's kept.
-- **Updates and about**: update checks, automatic updates, the agent and PawnIO versions, and the log files.
+- **Updates and about**: update now, automatic updates for this PC, the agent and PawnIO versions, and the log files.
+
+## Updates
+
+When a new version of Sector is out, you get one notification for all your PCs, and a strip appears at the top of the
+Sector window. Click the notification or **Update all**: every PC that needs it (your NAS first, then this PC) downloads
+the official release from GitHub and installs it quietly. The Sector window closes and reopens by itself about a minute
+later, and tells you when it's done.
+
+There's no Windows permission prompt, because the Sector agent (a service) does the install. That's also why a NAS can
+update while nobody is signed in to it.
+
+- **Automatic updates**: turn on **Install updates automatically** in Settings for this PC, and the **Auto-update**
+  switch under Machines for each of your other PCs. Each PC then checks every few hours and updates itself.
+- **Update one PC**: Machines lists every PC's version with its own **Update** button.
+- Only the Setup.exe attached to an official release at github.com/bhxuk/sector is ever installed.
+
+Coming from 1.0.0, the first update asks for Windows permission once on each PC, and the NAS has to be updated once from
+Sector on the NAS itself. After that, everything works as above.
 
 ## How hot is too hot?
 

@@ -85,6 +85,17 @@ namespace Sector
             }) { IsBackground = true };
             t.Start();
 
+            string version = Updates.CurrentText;
+            if (!string.IsNullOrEmpty(Settings.Current.LastVersion) && Settings.Current.LastVersion != version)
+            {
+                string from = Settings.Current.LastVersion;
+                _ = Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith(_ => Dispatcher.BeginInvoke(new Action(() =>
+                    Tray.Notify("Sector updated to " + version, "You were on " + from + ". Click to see what's new.",
+                        () => Shell.Open("https://github.com/" + Updates.Repo + "/blob/main/CHANGELOG.md")))));
+            }
+            Settings.Current.LastVersion = version;
+            Settings.Save();
+
             if (Settings.Current.FirstRun || !Background) ShowHub();
             if (Settings.Current.FirstRun)
             {
